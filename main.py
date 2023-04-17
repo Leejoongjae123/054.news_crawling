@@ -1,12 +1,38 @@
-import requests
+import openpyxl
+import pandas as pd
+from pyautogui import size
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import subprocess
+import shutil
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from bs4 import BeautifulSoup
-
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import db
 import time
+import datetime
+import pyautogui
+import pyperclip
+import csv
+import sys
+import os
+import math
+import requests
+import re
+import random
+import chromedriver_autoinstaller
+from PyQt5.QtWidgets import QWidget, QApplication, QTreeView, QFileSystemModel, QVBoxLayout, QPushButton, QInputDialog, \
+    QLineEdit, QMainWindow, QMessageBox, QFileDialog
+from PyQt5.QtCore import QCoreApplication
+from selenium.webdriver import ActionChains
+from datetime import datetime, date, timedelta
+import numpy
+import datetime
+from window import Ui_MainWindow
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 
 
 
@@ -76,20 +102,31 @@ firebase_admin.initialize_app(cred,{
     #'databaseURL' : '데이터 베이스 url'
 })
 
-keyword_list=['삼성전자',"SK하이닉스",'현대중공업','만도','에코프로','셀트리온']
-for keyword in keyword_list:
-    keyword='"{}"'.format(keyword)
-    print('keyword:',keyword)
-    soup=get_news(keyword)
-    data_list=get_article(soup)
-    print('data_list:',data_list)
+db=firestore.client()
+doc_ref = db.collection('subjects').document('subjects')
+doc = doc_ref.get()
+if doc.exists:
+    keyword_info_list=doc.to_dict()['data']
+    print('keyword_list: {}'.format(keyword_info_list))
+else:
+    print(u'No such document!')
 
 
 
+for keyword_info in keyword_info_list:
+    group_name=keyword_info['group']
+    print('group_name:',group_name)
+    for keyword in keyword_info['name']:
+        keyword='"{}"'.format(keyword)
+        print('★★★keyword★★★★:',keyword)
+        soup=get_news(keyword)
+        data_list=get_article(soup)
+        print('data_list:',data_list)
 
-    ref = db.reference()#db 위치 지정, 기본 가장 상단을 가르킴
-    ref.update({keyword:data_list})
-    print(ref.get())
-    # ref.update({'이름' : '김철수'}) #해당 변수가 없으면 생성한다.
-    # [출처] [Python] 파이썬 Firebase Realtime DB 생성, 값 저장, 조회|작성자 넬티아
-    time.sleep(0.5)
+        db=firebase_admin.db
+        ref = db.reference()#db 위치 지정, 기본 가장 상단을 가르킴
+        ref.update({keyword:data_list})
+        # ref.update({'이름' : '김철수'}) #해당 변수가 없으면 생성한다.
+        # [출처] [Python] 파이썬 Firebase Realtime DB 생성, 값 저장, 조회|작성자 넬티아
+        print("====================================================")
+        time.sleep(0.5)
